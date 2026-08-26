@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>작심 33일 퀘스트 | 33-Day Resolve Quest</title>
+    
+    <!-- Google Fonts for Orbitron (Cyberpunk vibe) and Noto Sans KR -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Orbitron:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* CSS CSS Custom Properties for Theme Tokens */
+        :root {
+            --bg-color: #08090f;
+            --panel-bg: rgba(16, 20, 35, 0.85);
+            --panel-border: rgba(0, 242, 254, 0.15);
+            --panel-border-focus: rgba(0, 242, 254, 0.6);
+            --text-primary: #f0f3ff;
+            --text-secondary: #8b9bb4;
+            
+            /* Cyberpunk Neon Colors */
+            --neon-blue: #00f2fe;
+            --neon-purple: #9d4edd;
+            --neon-green: #39ff14;
+            --neon-pink: #ff007f;
+            --neon-yellow: #fffb00;
+            
+            --glow-blue: 0 0 10px rgba(0, 242, 254, 0.4), 0 0 20px rgba(0, 242, 254, 0.2);
+            --glow-purple: 0 0 10px rgba(157, 78, 221, 0.4), 0 0 20px rgba(157, 78, 221, 0.2);
+            --glow-green: 0 0 10px rgba(57, 255, 20, 0.4), 0 0 20px rgba(57, 255, 20, 0.2);
+            --glow-pink: 0 0 10px rgba(255, 0, 127, 0.4), 0 0 20px rgba(255, 0, 127, 0.2);
+            
+            --font-cyber: 'Orbitron', sans-serif;
+            --font-base: 'Noto Sans KR', sans-serif;
+        }
+
+        /* Reset & Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(157, 78, 221, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.15) 0px, transparent 50%);
+            color: var(--text-primary);
+            font-family: var(--font-base);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            padding: 2rem 1rem;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-purple);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-blue);
+        }
+
+        /* Container & Layout */
+        .app-container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 1.5rem 0;
+            position: relative;
+        }
+
+        .logo-area {
+            display: inline-block;
+            position: relative;
+        }
+
+        h1 {
+            font-family: var(--font-cyber);
+            font-size: 2.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: var(--glow-blue);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        h1 span.accent {
+            color: var(--neon-pink);
+            text-shadow: var(--glow-pink);
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Cyberpunk Panels (Cards) */
+        .cyber-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cyber-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--neon-blue), var(--neon-purple));
+        }
+
+        /* Status & Level Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1.2fr 0.8fr;
+            }
+        }
+
+        .level-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .level-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 0.75rem;
+        }
+
+        .level-badge {
+            font-family: var(--font-cyber);
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--neon-blue);
+            text-shadow: var(--glow-blue);
+        }
+
+        .level-title {
+            font-size: 0.9rem;
+            color: var(--neon-purple);
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px rgba(157, 78, 221, 0.4);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 24px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            animation: progress-shimmer 2s infinite linear;
+        }
+
+        @keyframes progress-shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: var(--font-cyber);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            pointer-events: none;
+        }
+
+        /* Stats Sub-panel */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stat-value {
+            font-family: var(--font-cyber);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-box.highlight .stat-value {
+            color: var(--neon-pink);
+            text-shadow: var(--glow-pink);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Quest Input Section */
+        .quest-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            position: relative;
+        }
+
+        @media (min-width: 600px) {
+            .input-group {
+                flex-direction: row;
+            }
+        }
+
+        .input-wrapper {
+            position: relative;
+            flex-grow: 1;
+        }
+
+        .quest-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 1rem 1rem 1rem 2.8rem;
+            color: #fff;
+            font-size: 1rem;
+            font-family: var(--font-base);
+            transition: all 0.3s ease;
+        }
+
+        .quest-input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            color: var(--neon-blue);
+            pointer-events: none;
+        }
+
+        /* Button Styling */
+        .cyber-btn {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 1.8rem;
+            font-family: var(--font-base);
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: var(--glow-blue);
+            white-space: nowrap;
+        }
+
+        .cyber-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.6), 0 0 25px rgba(157, 78, 221, 0.4);
+        }
+
+        .cyber-btn:active {
+            transform: translateY(1px);
+        }
+
+        .cyber-btn:disabled {
+            background: #2e303d;
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Achievement Status Banner */
+        .status-banner {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(57, 255, 20, 0.08);
+            border: 1px solid rgba(57, 255, 20, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 5px rgba(57, 255, 20, 0.2);
+        }
+
+        .status-banner.hidden {
+            display: none;
+        }
+
+        /* Challenge Board Grid */
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 0.5rem;
+        }
+
+        .board-title {
+            font-family: var(--font-cyber);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        /* Grid Day Cell Styling */
+        .day-cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            user-select: none;
+        }
+
+        .day-number {
+            font-family: var(--font-cyber);
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-secondary);
+            transition: color 0.3s;
+        }
+
+        .day-status {
+            font-size: 0.65rem;
+            margin-top: 0.15rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Cell Hover / Focus State */
+        .day-cell:hover {
+            transform: scale(1.08);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+            background: rgba(0, 242, 254, 0.02);
+        }
+
+        /* Completed State */
+        .day-cell.completed {
+            background: rgba(0, 242, 254, 0.08);
+            border-color: var(--neon-blue);
+            box-shadow: var(--glow-blue);
+        }
+
+        .day-cell.completed .day-number {
+            color: var(--neon-blue);
+            text-shadow: var(--glow-blue);
+        }
+
+        .day-cell.completed .day-status {
+            color: var(--neon-blue);
+        }
+
+        .day-cell.completed::after {
+            content: '⚡';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            font-size: 0.7rem;
+        }
+
+        /* Today Pulse effect */
+        .day-cell.today-target {
+            border-color: var(--neon-pink);
+            animation: pulse-border 2s infinite;
+        }
+        
+        .day-cell.today-target .day-number {
+            color: var(--neon-pink);
+        }
+
+        @keyframes pulse-border {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 0, 127, 0.4);
+                border-color: rgba(255, 0, 127, 0.8);
+            }
+            70% {
+                box-shadow: 0 0 0 6px rgba(255, 0, 127, 0);
+                border-color: rgba(255, 0, 127, 0.3);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 0, 127, 0);
+                border-color: rgba(255, 0, 127, 0.8);
+            }
+        }
+
+        /* Reset & Reset Section */
+        .action-panel {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 0.5rem;
+        }
+
+        .reset-btn {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .reset-btn:hover {
+            color: var(--neon-pink);
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 8px rgba(255, 0, 127, 0.2);
+            background: rgba(255, 0, 127, 0.05);
+        }
+
+        /* Modal Overlay & Styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: var(--panel-bg);
+            border: 2px solid var(--neon-pink);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: var(--glow-pink);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-family: var(--font-cyber);
+            font-size: 1.4rem;
+            color: var(--neon-pink);
+            margin-bottom: 1rem;
+            text-shadow: var(--glow-pink);
+        }
+
+        .modal-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-confirm {
+            background: var(--neon-pink);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: var(--glow-pink);
+            transition: all 0.2s;
+        }
+
+        .btn-confirm:hover {
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Toast Notification System */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1001;
+        }
+
+        .toast {
+            background: rgba(16, 20, 35, 0.95);
+            border-left: 4px solid var(--neon-blue);
+            color: #fff;
+            padding: 1rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateX(120%);
+            animation: slide-in 0.3s forwards, fade-out 0.3s 2.7s forwards;
+            min-width: 250px;
+        }
+
+        .toast.success {
+            border-left-color: var(--neon-green);
+        }
+
+        .toast.level-up {
+            border-left-color: var(--neon-purple);
+            box-shadow: var(--glow-purple);
+        }
+
+        @keyframes slide-in {
+            to { transform: translateX(0); }
+        }
+
+        @keyframes fade-out {
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Header Section -->
+        <header>
+            <div class="logo-area">
+                <h1>작심 33일 <span class="accent">퀘스트</span></h1>
+                <div class="subtitle">33-Day Resolve Quest</div>
+            </div>
+        </header>
+
+        <!-- Dashboard Panel (Level, EXP & Stats) -->
+        <section class="cyber-panel dashboard-grid">
+            <!-- Level Info -->
+            <div class="level-card">
+                <div class="level-header">
+                    <div>
+                        <div class="level-title" id="rank-name">Lv.1 모험가</div>
+                        <div class="level-badge" id="level-display">Lv.1</div>
+                    </div>
+                    <div style="font-family: var(--font-cyber); font-size: 0.85rem; color: var(--text-secondary);">
+                        EXP <span id="exp-raw" style="color: var(--neon-blue)">0</span> / <span id="exp-max">300</span>
+                    </div>
+                </div>
+                <!-- Progress Bar -->
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                    <div class="progress-text" id="progress-percent">0%</div>
+                </div>
+            </div>
+
+            <!-- Fast Stats -->
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-completed">0 / 33</div>
+                    <div class="stat-label">완료한 퀘스트</div>
+                </div>
+                <div class="stat-box highlight">
+                    <div class="stat-value" id="stat-streak">0일</div>
+                    <div class="stat-label">연속 달성일</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-total-exp">0 XP</div>
+                    <div class="stat-label">누적 경험치</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Daily Quest Panel -->
+        <section class="cyber-panel quest-section">
+            <div class="board-title">오늘의 퀘스트</div>
+            
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <span class="input-icon">🎯</span>
+                    <input type="text" id="quest-input" class="quest-input" placeholder="오늘의 학습 퀘스트(목표)를 입력하세요..." maxlength="50">
+                </div>
+                <button id="complete-btn" class="cyber-btn">
+                    <span>퀘스트 완료</span> ⚡
+                </button>
+            </div>
+
+            <!-- Dynamic Daily Completion Banner -->
+            <div id="status-banner" class="status-banner hidden">
+                <span>✓</span> <span id="status-banner-text">오늘의 학습 퀘스트를 완료했습니다! 내일 새로운 퀘스트가 찾아옵니다.</span>
+            </div>
+        </section>
+
+        <!-- 33-Day Challenge Board Grid -->
+        <section class="cyber-panel">
+            <div class="board-header">
+                <div class="board-title">퀘스트 보드 (33 DAYS)</div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                    현재 목표 일차: <span id="target-day-display" style="color: var(--neon-pink); font-family: var(--font-cyber); font-weight: 700;">Day 1</span>
+                </div>
+            </div>
+            
+            <div class="board-grid" id="board-grid">
+                <!-- Day cells populated via JS -->
+            </div>
+        </section>
+
+        <!-- Danger Area Controls -->
+        <div class="action-panel">
+            <button class="reset-btn" id="reset-btn">퀘스트 초기화</button>
+        </div>
+
+    </div>
+
+    <!-- Confirm Reset Modal -->
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal-box">
+            <div class="modal-title">⚠️ 데이터 초기화</div>
+            <div class="modal-desc">
+                정말로 모든 퀘스트 달성 기록과 경험치를 초기화하시겠습니까?<br>
+                <strong>이 작업은 되돌릴 수 없습니다.</strong>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-confirm" id="modal-confirm">초기화 진행</button>
+                <button class="btn-cancel" id="modal-cancel">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        // --- GAME SYSTEM CONFIG & STATE ---
+        const EXP_PER_DAY = 100;
+        const TOTAL_DAYS = 33;
+
+        // Level threshold layout
+        // Lv 1: 0 - 200 XP (Days 0-2)
+        // Lv 2: 300 - 600 XP (Days 3-6)
+        // Lv 3: 700 - 1300 XP (Days 7-13)
+        // Lv 4: 1400 - 2000 XP (Days 14-20)
+        // Lv 5: 2100 - 3200 XP (Days 21-32)
+        // Lv. Master: 3300 XP (Day 33 Completed)
+        const levels = [
+            { lv: 1, name: "시작하는 도전자", minExp: 0, maxExp: 300 },
+            { lv: 2, name: "꾸준한 탐구자", minExp: 300, maxExp: 700 },
+            { lv: 3, name: "습관의 개척자", minExp: 700, maxExp: 1400 },
+            { lv: 4, name: "성실한 마스터", minExp: 1400, maxExp: 2100 },
+            { lv: 5, name: "초월한 몰입가", minExp: 2100, maxExp: 3300 },
+            { lv: "Master", name: "완벽한 마스터", minExp: 3300, maxExp: 3300 }
+        ];
+
+        let state = {
+            completedDays: [], // Array of indices completed (e.g. [0, 1, 2])
+            currentQuestText: '',
+            lastCompletedDate: null, // ISO Date string
+            streakCount: 0
+        };
+
+        // DOM elements
+        const questInput = document.getElementById('quest-input');
+        const completeBtn = document.getElementById('complete-btn');
+        const statusBanner = document.getElementById('status-banner');
+        const statusBannerText = document.getElementById('status-banner-text');
+        
+        const rankNameText = document.getElementById('rank-name');
+        const levelDisplay = document.getElementById('level-display');
+        const expRaw = document.getElementById('exp-raw');
+        const expMax = document.getElementById('exp-max');
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercent = document.getElementById('progress-percent');
+        
+        const statCompleted = document.getElementById('stat-completed');
+        const statStreak = document.getElementById('stat-streak');
+        const statTotalExp = document.getElementById('stat-total-exp');
+        
+        const boardGrid = document.getElementById('board-grid');
+        const targetDayDisplay = document.getElementById('target-day-display');
+        
+        const resetBtn = document.getElementById('reset-btn');
+        const confirmModal = document.getElementById('confirm-modal');
+        const modalConfirm = document.getElementById('modal-confirm');
+        const modalCancel = document.getElementById('modal-cancel');
+        const toastContainer = document.getElementById('toast-container');
+
+        // --- SYSTEM UTILS ---
+        
+        // Show Toast messages
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>⚡</span> <span>${message}</span>`;
+            toastContainer.appendChild(toast);
+            
+            // Auto remove toast
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Save State to Local Storage
+        function saveState() {
+            try {
+                localStorage.setItem('resolve_quest_state_v1', JSON.stringify(state));
+            } catch (e) {
+                console.error("Local storage save failed:", e);
+            }
+        }
+
+        // Load State from Local Storage
+        function loadState() {
+            try {
+                const saved = localStorage.getItem('resolve_quest_state_v1');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    // Ensure arrays and objects exist in expected format
+                    state.completedDays = parsed.completedDays || [];
+                    state.currentQuestText = parsed.currentQuestText || '';
+                    state.lastCompletedDate = parsed.lastCompletedDate || null;
+                    state.streakCount = parsed.streakCount || 0;
+                }
+            } catch (e) {
+                console.error("Failed to load state from local storage. Starting fresh.", e);
+            }
+        }
+
+        // Calculate Level stats based on current total experience
+        function calculateLevelStats(totalExp) {
+            let currentLevel = levels[0];
+            let nextLevel = levels[1];
+
+            if (totalExp >= levels[levels.length - 1].minExp) {
+                currentLevel = levels[levels.length - 1];
+                nextLevel = currentLevel;
+                return {
+                    level: currentLevel.lv,
+                    name: currentLevel.name,
+                    min: currentLevel.minExp,
+                    max: currentLevel.maxExp,
+                    currentProgressExp: totalExp - currentLevel.minExp,
+                    requiredExp: 0,
+                    percent: 100
+                };
+            }
+
+            for (let i = 0; i < levels.length - 1; i++) {
+                if (totalExp >= levels[i].minExp && totalExp < levels[i + 1].minExp) {
+                    currentLevel = levels[i];
+                    nextLevel = levels[i + 1];
+                    break;
+                }
+            }
+
+            const range = nextLevel.minExp - currentLevel.minExp;
+            const progress = totalExp - currentLevel.minExp;
+            const percent = range > 0 ? Math.floor((progress / range) * 100) : 100;
+
+            return {
+                level: currentLevel.lv,
+                name: currentLevel.name,
+                min: currentLevel.minExp,
+                max: nextLevel.minExp,
+                currentProgressExp: progress,
+                requiredExp: range,
+                percent: percent
+            };
+        }
+
+        // Confetti Fireworks Animation Effect
+        function launchCelebration() {
+            if (typeof confetti === 'function') {
+                const duration = 2.5 * 1000;
+                const end = Date.now() + duration;
+
+                (function frame() {
+                    confetti({
+                        particleCount: 4,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0, y: 0.8 },
+                        colors: ['#00f2fe', '#9d4edd', '#ff007f', '#39ff14']
+                    });
+                    confetti({
+                        particleCount: 4,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1, y: 0.8 },
+                        colors: ['#00f2fe', '#9d4edd', '#ff007f', '#39ff14']
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            } else {
+                // Fallback emoji particle burst if library isn't loaded
+                const emojiBurst = document.createElement('div');
+                emojiBurst.style.position = 'fixed';
+                emojiBurst.style.top = '50%';
+                emojiBurst.style.left = '50%';
+                emojiBurst.style.transform = 'translate(-50%, -50%)';
+                emojiBurst.style.fontSize = '3rem';
+                emojiBurst.style.pointerEvents = 'none';
+                emojiBurst.style.zIndex = '9999';
+                emojiBurst.textContent = '🎉🔥✨💪🎓';
+                document.body.appendChild(emojiBurst);
+                
+                setTimeout(() => {
+                    emojiBurst.style.transition = 'all 1s ease';
+                    emojiBurst.style.transform = 'translate(-50%, -150%) scale(1.5)';
+                    emojiBurst.style.opacity = '0';
+                }, 50);
+                setTimeout(() => emojiBurst.remove(), 1100);
+            }
+        }
+
+        // Check if quest can be completed today
+        function isAlreadyCompletedToday() {
+            if (!state.lastCompletedDate) return false;
+            
+            const today = new Date().toDateString();
+            const lastDate = new Date(state.lastCompletedDate).toDateString();
+            return today === lastDate;
+        }
+
+        // Update the board UI representation
+        function renderBoard() {
+            boardGrid.innerHTML = '';
+            
+            // Next target index to fill
+            const nextTargetIndex = state.completedDays.length;
+
+            for (let i = 0; i < TOTAL_DAYS; i++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'day-cell';
+                
+                const isCompleted = state.completedDays.includes(i);
+                
+                if (isCompleted) {
+                    dayCell.classList.add('completed');
+                } else if (i === nextTargetIndex && !isAlreadyCompletedToday()) {
+                    dayCell.classList.add('today-target');
+                }
+
+                dayCell.innerHTML = `
+                    <div class="day-number">D-${i + 1}</div>
+                    <div class="day-status">${isCompleted ? 'CLEAR' : 'WAIT'}</div>
+                `;
+
+                // Add nice dynamic click effect for interactions
+                dayCell.addEventListener('click', () => {
+                    if (isCompleted) {
+                        showToast(`Day ${i + 1} 미션이 이미 정상 클리어되었습니다!`, 'success');
+                    } else if (i === nextTargetIndex) {
+                        questInput.focus();
+                        showToast("오늘의 퀘스트 입력을 작성하고 완료해보세요!", "info");
+                    } else {
+                        showToast(`아직 도전할 준비가 되지 않은 일차입니다.`, "info");
+                    }
+                });
+
+                boardGrid.appendChild(dayCell);
+            }
+
+            // Update Target display text
+            if (nextTargetIndex < TOTAL_DAYS) {
+                targetDayDisplay.textContent = `Day ${nextTargetIndex + 1}`;
+            } else {
+                targetDayDisplay.textContent = `마스터`;
+            }
+        }
+
+        // Render Dashboard Stats, Progress Bar, Levels
+        function renderDashboard() {
+            const completedCount = state.completedDays.length;
+            const totalExp = completedCount * EXP_PER_DAY;
+            
+            const lvStats = calculateLevelStats(totalExp);
+            
+            // Check for Rank Title change and notify
+            const prevBadge = levelDisplay.textContent;
+            
+            levelDisplay.textContent = `Lv.${lvStats.level}`;
+            rankNameText.textContent = `${lvStats.level === "Master" ? "" : "Lv." + lvStats.level} ${lvStats.name}`;
+            
+            if (prevBadge && prevBadge !== `Lv.${lvStats.level}` && completedCount > 0) {
+                showToast(`축하합니다! 새로운 지위인 [${lvStats.name}]에 도달했습니다! 🚀`, 'level-up');
+                launchCelebration();
+            }
+
+            // EXP bar updates
+            if (lvStats.level === "Master") {
+                expRaw.textContent = totalExp;
+                expMax.textContent = totalExp;
+                progressBar.style.width = '100%';
+                progressPercent.textContent = 'MAX';
+            } else {
+                expRaw.textContent = totalExp;
+                expMax.textContent = lvStats.max;
+                
+                // Calculate percentage relative to current level thresholds
+                progressBar.style.width = `${lvStats.percent}%`;
+                progressPercent.textContent = `${lvStats.percent}%`;
+            }
+
+            // Stats cards updates
+            statCompleted.textContent = `${completedCount} / ${TOTAL_DAYS}`;
+            statStreak.textContent = `${state.streakCount}일`;
+            statTotalExp.textContent = `${totalExp} XP`;
+        }
+
+        // Check if streak is maintained or broken
+        function updateStreakValidity() {
+            if (!state.lastCompletedDate) {
+                state.streakCount = 0;
+                return;
+            }
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const lastDate = new Date(state.lastCompletedDate);
+            lastDate.setHours(0, 0, 0, 0);
+
+            const diffTime = Math.abs(today - lastDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            // If streak has been idle for more than 1 full day, break streak
+            if (diffDays > 1) {
+                state.streakCount = 0;
+                saveState();
+            }
+        }
+
+        // Render Inputs and validation banners
+        function renderQuestInputSection() {
+            const completedToday = isAlreadyCompletedToday();
+            
+            if (completedToday) {
+                questInput.value = state.currentQuestText;
+                questInput.disabled = true;
+                completeBtn.disabled = true;
+                statusBanner.classList.remove('hidden');
+                
+                if (state.completedDays.length >= TOTAL_DAYS) {
+                    statusBannerText.textContent = "축하합니다! 33일간의 긴 작심삼일 여정을 모두 완수해 마스터에 도달했습니다! 🎉";
+                    statusBanner.style.borderColor = "var(--neon-purple)";
+                    statusBanner.style.color = "var(--neon-purple)";
+                } else {
+                    statusBannerText.textContent = "오늘의 학습 퀘스트를 완료했습니다! 내일 새로운 퀘스트가 찾아옵니다.";
+                }
+            } else {
+                questInput.value = state.currentQuestText;
+                questInput.disabled = false;
+                completeBtn.disabled = false;
+                statusBanner.classList.add('hidden');
+            }
+        }
+
+        // Sync and refresh the whole App View
+        function refreshUI() {
+            updateStreakValidity();
+            renderBoard();
+            renderDashboard();
+            renderQuestInputSection();
+        }
+
+        // --- BUTTON HANDLERS & LISTENERS ---
+
+        // Event: Quest completion
+        completeBtn.addEventListener('click', () => {
+            const questText = questInput.value.trim();
+            
+            if (!questText) {
+                showToast("오늘 달성할 구체적인 퀘스트를 먼저 작성해주세요!", "info");
+                questInput.focus();
+                return;
+            }
+
+            if (isAlreadyCompletedToday()) {
+                showToast("오늘 퀘스트를 이미 통과했습니다.", "info");
+                return;
+            }
+
+            // Logic to calculate streak
+            const today = new Date();
+            if (state.lastCompletedDate) {
+                const lastDate = new Date(state.lastCompletedDate);
+                lastDate.setHours(0, 0, 0, 0);
+                
+                const compareDate = new Date(today);
+                compareDate.setHours(0, 0, 0, 0);
+                
+                const timeDiff = Math.abs(compareDate - lastDate);
+                const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                
+                if (dayDiff === 1) {
+                    state.streakCount += 1;
+                } else if (dayDiff > 1) {
+                    state.streakCount = 1;
+                }
+            } else {
+                state.streakCount = 1;
+            }
+
+            // Save status values
+            const nextDayIndex = state.completedDays.length;
+            if (nextDayIndex < TOTAL_DAYS) {
+                state.completedDays.push(nextDayIndex);
+            }
+            
+            state.currentQuestText = questText;
+            state.lastCompletedDate = today.toISOString();
+            
+            saveState();
+            refreshUI();
+            
+            launchCelebration();
+            showToast(`Day ${nextDayIndex + 1} 퀘스트 달성 성공! +100 EXP 획득 🌟`, 'success');
+        });
+
+        // Event: Input text buffering to keep currentQuestText in sync
+        questInput.addEventListener('input', (e) => {
+            state.currentQuestText = e.target.value;
+            saveState();
+        });
+
+        // Event: Reset modal overlays
+        resetBtn.addEventListener('click', () => {
+            confirmModal.classList.add('active');
+        });
+
+        modalCancel.addEventListener('click', () => {
+            confirmModal.classList.remove('active');
+        });
+
+        // Reset confirmed state logic
+        modalConfirm.addEventListener('click', () => {
+            state = {
+                completedDays: [],
+                currentQuestText: '',
+                lastCompletedDate: null,
+                streakCount: 0
+            };
+            saveState();
+            refreshUI();
+            confirmModal.classList.remove('active');
+            showToast("퀘스트 기록이 초기화되었습니다. 다시 도전해봐요!", "info");
+        });
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            refreshUI();
+        });
+    </script>
+</body>
+</html>
